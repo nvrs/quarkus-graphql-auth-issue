@@ -200,12 +200,12 @@
         </ResultCollector>
         <hashTree/>
         <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Assertion" enabled="true">
-          <stringProp name="JSON_PATH">$.errors</stringProp>
-          <stringProp name="EXPECTED_VALUE"></stringProp>
-          <boolProp name="JSONVALIDATION">false</boolProp>
+          <stringProp name="JSON_PATH">$.errors[0].extensions.code</stringProp>
+          <stringProp name="EXPECTED_VALUE">unauthorized</stringProp>
+          <boolProp name="JSONVALIDATION">true</boolProp>
           <boolProp name="EXPECT_NULL">false</boolProp>
           <boolProp name="INVERT">true</boolProp>
-          <boolProp name="ISREGEX">true</boolProp>
+          <boolProp name="ISREGEX">false</boolProp>
         </JSONPathAssertion>
         <hashTree/>
       </hashTree>
