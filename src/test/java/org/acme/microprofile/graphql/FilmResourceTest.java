@@ -2,6 +2,7 @@ package org.acme.microprofile.graphql;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -13,7 +14,8 @@ import static org.hamcrest.Matchers.containsString;
 public class FilmResourceTest {
 
     private String userName = "scott";
-    private String pass = "jb0ss";
+    @ConfigProperty(name = "quarkus.security.users.embedded.users.scott")
+    private String pass;
 
     @Test
     public void allFilms() {
