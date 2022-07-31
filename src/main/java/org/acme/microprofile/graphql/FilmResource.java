@@ -25,6 +25,13 @@ public class FilmResource {
         return service.getAllFilms();
     }
 
+    @Query("allFilmsSecured")
+    @Description("Get all Films from a galaxy far far away")
+    @Authenticated
+    public List<Film> getAllFilmsSecured() {
+        return service.getAllFilms();
+    }
+
     @Query
     @Description("Get a Films from a galaxy far far away")
     public Film getFilm(@Name("filmId") int id) {
