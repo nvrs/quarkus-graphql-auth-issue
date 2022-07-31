@@ -2,20 +2,18 @@ package org.acme.microprofile.graphql;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Test;
 
+import javax.inject.Inject;
+
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
 public class FilmResourceTest {
 
-    private String userName = "scott";
-    @ConfigProperty(name = "quarkus.security.users.embedded.users.scott")
-    private String pass;
+    @Inject
+    UserUtil userUtil;
 
     @Test
     public void allFilms() {
@@ -36,14 +34,41 @@ public class FilmResourceTest {
 
         given()
                 .body(requestBody)
-                .auth()
-                .preemptive()
-                .basic(userName, pass)
                 .post("/graphql/")
                 .then()
                 .contentType(ContentType.JSON)
                 .body("data.allFilms.size()", is(3))
                 .body("data.allFilms.director", hasItem("George Lucas"))
+                .statusCode(200);
+    }
+
+    @Test
+    public void allFilmsSecured() {
+        var user = userUtil.getSomeUserEntry();
+        String requestBody =
+                "{\"query\":" +
+                        "\"" +
+                        "{" +
+                        " allFilmsSecured  {" +
+                        " title" +
+                        " director" +
+                        " releaseDate" +
+                        " episodeID" +
+                        "}" +
+                        "}" +
+                        "\"" +
+                        "}";
+
+        given()
+                .body(requestBody)
+                .auth()
+                .preemptive()
+                .basic(user.userName, user.password)
+                .post("/graphql/")
+                .then()
+                .contentType(ContentType.JSON)
+                .body("data.allFilmsSecured.size()", is(3))
+                .body("data.allFilmsSecured.director", hasItem("George Lucas"))
                 .statusCode(200);
     }
 

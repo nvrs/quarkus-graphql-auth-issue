@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import java.util.List;
 
 @GraphQLApi
-@PermitAll
 public class FilmResource {
 
     @Inject
@@ -22,7 +21,6 @@ public class FilmResource {
 
     @Query("allFilms")
     @Description("Get all Films from a galaxy far far away")
-    @Authenticated
     public List<Film> getAllFilms() {
         return service.getAllFilms();
     }

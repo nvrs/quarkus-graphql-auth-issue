@@ -2,10 +2,10 @@ package org.acme.microprofile.graphql;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.response.Response;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -18,15 +18,15 @@ import static io.restassured.RestAssured.given;
 @QuarkusTest
 public class ConcurrentAuthTest {
 
-    private String userName = "scott";
-    @ConfigProperty(name = "quarkus.security.users.embedded.users.scott")
-    private String pass;
+    private int iterations = 3000;
+
+    @Inject
+    UserUtil userUtil;
 
     @Test
-    public void allFilmsOnlyConcurrentAccess() throws InterruptedException, ExecutionException {
+    public void concurrentAllFilmsOnly() throws InterruptedException, ExecutionException {
         ExecutorService executor = Executors.newFixedThreadPool(50);
 
-        var iterations = 2000;
         var futures = new ArrayList<CompletableFuture<Boolean>>(iterations);
         for (int i = 0; i < iterations; i++) {
             futures.add(CompletableFuture.supplyAsync(this::allFilmsRequestWithAuth, executor)
@@ -39,10 +39,9 @@ public class ConcurrentAuthTest {
     }
 
     @Test
-    public void allFilmsAndFilmByIdConcurrentAccess() throws InterruptedException, ExecutionException {
+    public void concurrentAllFilmsAndFilmById() throws InterruptedException, ExecutionException {
         ExecutorService executor = Executors.newFixedThreadPool(50);
 
-        var iterations = 2000;
         var futures = new ArrayList<CompletableFuture<Boolean>>(iterations);
         for (int i = 0; i < iterations; i++) {
             futures.add(CompletableFuture.supplyAsync(this::allFilmsRequestWithAuth, executor)
@@ -65,11 +64,12 @@ public class ConcurrentAuthTest {
     }
 
     private Response allFilmsRequestWithAuth() {
+        var user = userUtil.getSomeUserEntry();
         String requestBody =
                 "{\"query\":" +
                         "\"" +
                         "{" +
-                        " allFilms  {" +
+                        " allFilmsSecured  {" +
                         " title" +
                         " director" +
                         " releaseDate" +
@@ -83,7 +83,7 @@ public class ConcurrentAuthTest {
                 .body(requestBody)
                 .auth()
                 .preemptive()
-                .basic(userName, pass)
+                .basic(user.userName, user.password)
                 .post("/graphql/");
     }
 
